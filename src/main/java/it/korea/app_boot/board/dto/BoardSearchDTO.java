@@ -13,7 +13,7 @@ public class BoardSearchDTO{
 
     //헤더 정렬 시 정렬 순서 만들어주기 
     public String getOrderStr() {
-        String order = "board_id desc";
+        String order = "brd_id desc";
 
         if(sidx != null && sord != null) {
             order = "" ;

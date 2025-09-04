@@ -1,8 +1,13 @@
 package it.korea.app_boot.board.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.korea.app_boot.board.dto.BoardSearchDTO;
+import it.korea.app_boot.board.service.BoardJPAService;
 import it.korea.app_boot.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +28,8 @@ public class BoardAPIController {
 
     private final BoardService service;
 
+    private final BoardJPAService jpaService;
+
     @GetMapping("/board/list")
     public ResponseEntity<Map<String, Object>> getBoardListData(BoardSearchDTO searchDTo) {
         Map<String, Object> resultMap = new HashMap<>();
@@ -30,6 +38,42 @@ public class BoardAPIController {
         try{
 
             resultMap = service.getBoardList(searchDTo);
+
+        }catch(Exception e) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            e.printStackTrace();
+        }
+
+        // HttpServletResponse + HttpStatus 결합 객체 
+        return new ResponseEntity<>(resultMap, status);
+    }
+
+    @GetMapping("/board/data")
+    public ResponseEntity<Map<String, Object>> getBoardData(BoardSearchDTO searchDTO) {
+
+
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = HttpStatus.OK;
+
+        List<Sort.Order> sorts = new ArrayList<>();
+        String[] sidxs = searchDTO.getSidx().split(",");
+        String[] sords = searchDTO.getSord().split(",");
+
+        for(int i = 0; i < sidxs.length; i++) {
+           if(sords[i].equals("asc")) {
+               sorts.add(new Sort.Order(Sort.Direction.ASC, sidxs[i]));
+           }else {
+               sorts.add(new Sort.Order(Sort.Direction.DESC, sidxs[i]));
+           }
+        }
+
+
+        //현재페이지, 가져올 개수,  order by  객체  > 페이지 객체 만들기 
+        Pageable  pageable = PageRequest.of(searchDTO.getPage(), searchDTO.getSize(),  Sort.by(sorts));
+
+        try{
+
+            resultMap = jpaService.getBoardList(pageable);
 
         }catch(Exception e) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
