@@ -11,12 +11,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.korea.app_boot.board.dto.BoardDTO;
 import it.korea.app_boot.board.dto.BoardSearchDTO;
 import it.korea.app_boot.board.service.BoardJPAService;
 import it.korea.app_boot.board.service.BoardService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 
@@ -81,6 +87,25 @@ public class BoardAPIController {
         }
 
         // HttpServletResponse + HttpStatus 결합 객체 
+        return new ResponseEntity<>(resultMap, status);
+    }
+
+      @GetMapping("/board/{brdId}")
+    public ResponseEntity<Map<String, Object>> getBoard(@PathVariable("brdId") int brdId) throws Exception {
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = HttpStatus.OK;
+
+        resultMap = jpaService.getBoard(brdId);
+
+        return new ResponseEntity<>(resultMap, status);
+    }
+
+    @PostMapping("/board")
+    public ResponseEntity<Map<String, Object>> writeBoard(@Valid @ModelAttribute BoardDTO.Request request) throws Exception {
+        
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = HttpStatus.OK;
+        resultMap = jpaService.writeBoard(request);
         return new ResponseEntity<>(resultMap, status);
     }
 }

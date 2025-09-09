@@ -25,6 +25,9 @@
             <header class="text-center">
                  <h2> 게시판 리스트</h2>
             </header>
+            <section class="text-end">
+                <button type="button" class="btn btn-success" onclick="writeBoard();">글쓰기</button>
+            </section>
             <section class="table-list">
                 <table id="boardTable">
                     <thead>
@@ -72,7 +75,7 @@
                     [0, 'desc']
                 ],
                 ajax : {
-                    url : '/api/v1/board/list',
+                    url : '/api/v1/board/data',
                     type : 'get',
                     data : function(d, settings) {
                         //dataTable api 객체 
@@ -125,7 +128,7 @@
                     {target:[1], 
                          width: '30%',
                         render : function(data, type, row,  meta) {
-                            return `<a href='/board/detail?brdId=${row.brdId}'>${data}</a>`;
+                            return `<a href='/board/${row.brdId}'>${data}</a>`;
                         }
                     },
                     {target:[2], width: '20%'},
@@ -140,6 +143,10 @@
            
         }
 
+
+        const writeBoard = () =>{
+            location.href = '/board/add/form';
+        }
 
         $(document).ready(function() {
             drawData();
