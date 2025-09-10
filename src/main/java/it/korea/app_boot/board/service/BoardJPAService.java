@@ -1,18 +1,34 @@
 package it.korea.app_boot.board.service;
 
+import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import it.korea.app_boot.board.dto.BoardDTO;
+import it.korea.app_boot.board.dto.BoardFileDTO;
 import it.korea.app_boot.board.entity.BoardEntity;
 import it.korea.app_boot.board.entity.BoardFileEntity;
+import it.korea.app_boot.board.repository.BoardFileRepository;
 import it.korea.app_boot.board.repository.BoardRepository;
 import it.korea.app_boot.common.files.FileUtils;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class BoardJPAService {
 
     private final BoardRepository boardRepository;
+    private final BoardFileRepository fileRepository;
     private final FileUtils fileUtils;
 
     public Map<String, Object> getBoardList(Pageable pageable) throws Exception{
@@ -88,5 +105,58 @@ public class BoardJPAService {
         resultMap.put("resultMsg", "OK");   
         
         return resultMap;
+    }
+
+      //파일 다운로드
+    public ResponseEntity<Resource> downLoadFile(int bfId) throws Exception {
+        //http 헤더 객체
+        HttpHeaders header = new HttpHeaders();
+        Resource resource = null;
+        // 파일 정보        
+        BoardFileDTO fileDTO = 
+            BoardFileDTO.of(
+              fileRepository
+              .findById(bfId)
+              .orElseThrow(()-> new NotFoundException("파일정보 없음"))
+            );
+        
+        String fullPath = fileDTO.getFilePath() +  fileDTO.getStoredName();
+        String fileName = fileDTO.getFileName(); // 다운로드할 때 사용 
+
+        File f = new File(fullPath);
+
+        if(!f.exists()) {
+            throw new NotFoundException("파일정보 없음");
+        }
+
+        //파일타입 >  NIO 를 이용한 타입찾기 
+        String mimeType = Files.probeContentType(Paths.get(f.getAbsolutePath()));
+
+        if(mimeType == null) {
+            mimeType = "application/octet-stream"; //기본 바이너리 파일 
+        }
+        //리소스 객체에 url를 통해서 전송할 파일 저장
+        resource = new FileSystemResource(f);
+       
+        //http 응답에서 브라우저가 콘텐츠를 처리하는 방식 
+        // inline > 브라우저 바에서 처리 > open 
+        // attachment > 다운로드 
+        header.setContentDisposition(
+            ContentDisposition
+            .builder("attachment")
+            .filename(fileName, StandardCharsets.UTF_8)
+            .build()
+        );
+
+        //mimeType 설정
+        header.setContentType(MediaType.parseMediaType(mimeType));
+        header.setContentLength(fileDTO.getFileSize());
+
+        // 캐쉬 설정
+         header.setCacheControl("no-cache, no-store, must-revalidate");
+         header.set("Pragma", "no-cache"); // old browser 호환
+         header.set("Expires", "0"); // 즉시 삭제
+
+         return new ResponseEntity<>(resource, header, HttpStatus.OK);
     }
 }

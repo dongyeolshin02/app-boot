@@ -30,7 +30,10 @@ public class FileUtils {
         String randName = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
         String storedFileName = randName + "." + extention;
 
-        String fullPath = filePath + type  + File.separator + storedFileName;
+    
+        filePath = filePath + type + File.separator;
+        String fullPath = filePath + storedFileName;
+        
         File newFile = new File(fullPath);
 
         //경로없으면 만들어주자

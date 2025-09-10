@@ -46,7 +46,7 @@
                             
                             <ul class="file-list"  th:unless="${#lists.isEmpty(vo.fileList)}">
                                <li class="file-item" th:each="item : ${vo.fileList}">
-                                  <a class="file-link" th:href="@{/api/vi1/board/file(bfId=${item.bfId})}">[[ ${item.fileName} ]]</a>
+                                  <a class="file-link" th:href="@{/api/v1/board/file/{bfId}(bfId=${item.bfId})}">[[ ${item.fileName} ]]</a>
                                </li>
                             </ul>
                        </td>
@@ -64,11 +64,27 @@
         </section>
         <section class="text-center">
             <button type="button" class="btn btn-warning me-2" onclick="updateLike();">좋아요</button>
-            <button type="button" class="btn btn-primary me-2" onclick="writeBoard();">글 수정</button>	
+            <button type="button" class="btn btn-primary me-2" onclick="updateBorad();">글 수정</button>	
             <button type="button" class="btn btn-danger  me-2" onclick="deleteBoard();">글 삭제</button>
             <button type="button" class="btn btn-secondary" onclick="goList();">목록</button>
         </section>
     </main>
+    <script>
+
+
+
+        const goList = () =>{
+            location.href = '/board/list';
+        
+        }
+
+        const updateBorad = () =>{
+            const brdId = $('#brdId').val();
+            location.href = `/board/update/${brdId}`;
+        }
+
+
+    </script>
 
 </div>
 

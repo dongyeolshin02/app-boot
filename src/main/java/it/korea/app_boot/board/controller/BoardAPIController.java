@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -108,4 +109,11 @@ public class BoardAPIController {
         resultMap = jpaService.writeBoard(request);
         return new ResponseEntity<>(resultMap, status);
     }
+
+    @GetMapping("/board/file/{bfId}")
+     public ResponseEntity<Resource> downFile(@PathVariable("bfId") int bfId) throws Exception {
+        return jpaService.downLoadFile(bfId);
+     }
+
+
 }

@@ -1,5 +1,6 @@
 package it.korea.app_boot.board.service;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,5 +34,7 @@ public class BoardService {
 
         return resultMap;
     }
+
+  
 
 }

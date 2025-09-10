@@ -30,7 +30,7 @@ public class BoardController {
 
     //게시글 상세보기 
     @GetMapping("/{brdId}")
-    public ModelAndView  detailView (@PathVariable int brdId) {
+    public ModelAndView  detailView (@PathVariable("brdId") int brdId) {
         ModelAndView view = new ModelAndView();
         Map<String, Object> resultMap = new HashMap<>();
         try{
@@ -44,6 +44,26 @@ public class BoardController {
         view.setViewName("views/board/boardDetail");
         return view;
     }
+
+
+    //게시글 수정화면 보기 
+    @GetMapping("/update/{brdId}")
+    public ModelAndView  updateForm (@PathVariable("brdId") int brdId) {
+        ModelAndView view = new ModelAndView();
+        Map<String, Object> resultMap = new HashMap<>();
+        try{
+            resultMap = service.getBoard(brdId);
+            view.addObject("vo", resultMap.get("vo"));
+       
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+       
+        view.setViewName("views/board/updateForm");
+        return view;
+    }
+
+
 
       @GetMapping("/add/form")
     public ModelAndView  writeForm () {

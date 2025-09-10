@@ -3,7 +3,7 @@ server:
   port: 9090
   file:
     upload:
-      path: c:\\files\\ upload\\
+      path: c:\\files\\upload\\
 
 
 spring:
