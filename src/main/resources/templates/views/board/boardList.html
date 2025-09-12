@@ -15,8 +15,46 @@
         .dataTables{
             table-layout: fixed;
         }
+
+        .sch-box {
+            display: flex;
+            width: 100%;
+            align-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .sch-item{
+            display: flex;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .sch-button{
+            flex: 1;
+            text-align: right;
+        }
+
+        #schType{
+           flex: 0 0  120px;
+            height: 36px;
+        }
+
+        .sch-item .form-control{
+             flex: 1 1  auto;
+             min-width: 150px;
+             width: 100%;
+             height: 36px;
+        }
+
+        .sch-item button {
+            flex: 0 0  auto;
+        }
+
     </style>
 </th:block>
+
+
 
 <div layout:fragment="content">
 
@@ -25,8 +63,18 @@
             <header class="text-center">
                  <h2> 게시판 리스트</h2>
             </header>
-            <section class="text-end">
-                <button type="button" class="btn btn-success" onclick="writeBoard();">글쓰기</button>
+            <section class="sch-box">
+                <div class="sch-item">
+                    <select class="form-select" id="schType" name="schType">
+                        <option value="title">제목</option>
+                        <option value="writer">작성자</option>
+                    </select>
+                    <input type="text" class="form-control" id="schText" name="schText">
+                    <button type="button" class="btn btn-primary" onclick="search();">검색</button>
+                </div>
+                <div class="sch-button">
+                    <button type="button" class="btn btn-success" onclick="writeBoard();">글쓰기</button>
+                </div>
             </section>
             <section class="table-list">
                 <table id="boardTable">
@@ -58,7 +106,7 @@
     </main>
     <script>
         let dataTable ;
-        //컬럼 별로 정렬하기 위해서 설정 
+        //컬럼 별로 정렬하기 위해서 설정 , thead 개수랑 동일해야한다  
         let dataColumns = [
             {data : 'brdId'},
             {data : 'title'},
@@ -68,6 +116,7 @@
             {data : 'modifiedDate'}
         ]
 
+        let paramData = {};
    
         function drawData() {
             table = $('#boardTable').DataTable({
@@ -91,6 +140,12 @@
                             sords.push(api.order()[i][1]);
                         }
 
+                        // 검색기능이 동작할 때 
+                        if(Object.keys(paramData).length > 0) {
+                            //검색 타입과  검색어 넘기기 
+                            d.schType = paramData.schType;
+                            d.schText = paramData.schText;
+                        }
                         d.sidx = sidx.join(','); // 컬럼
                         d.sord = sords.join(','); // 정렬
 
@@ -104,6 +159,7 @@
                         dataObj.recordsTotal = jsonData.total;
                         dataObj.recordsFiltered = jsonData.total;
                         dataObj.data = jsonData.content;
+                        
                        
                         return JSON.stringify(dataObj);
                     }
@@ -143,6 +199,16 @@
            
         }
 
+
+        const search = () =>{
+            const schType = $('#schType').val();
+            const schText = $('#schText').val();
+
+            //리터럴 객체의 key 와 value 변수 이름이 같을 경우 축약 가능 
+            paramData = { schType, schText };
+            $('#boardTable').DataTable().ajax.reload();
+
+        }
 
         const writeBoard = () =>{
             location.href = '/board/add/form';

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -27,10 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import it.korea.app_boot.board.dto.BoardDTO;
 import it.korea.app_boot.board.dto.BoardFileDTO;
+import it.korea.app_boot.board.dto.BoardSearchDTO;
 import it.korea.app_boot.board.entity.BoardEntity;
 import it.korea.app_boot.board.entity.BoardFileEntity;
 import it.korea.app_boot.board.repository.BoardFileRepository;
 import it.korea.app_boot.board.repository.BoardRepository;
+import it.korea.app_boot.board.repository.BoardSearchSpecification;
 import it.korea.app_boot.common.files.FileUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -45,11 +48,30 @@ public class BoardJPAService {
     private final BoardFileRepository fileRepository;
     private final FileUtils fileUtils;
 
-    public Map<String, Object> getBoardList(Pageable pageable) throws Exception{
+    public Map<String, Object> getBoardList(BoardSearchDTO searchDTO, Pageable pageable) throws Exception{
         Map<String, Object> resultMap = new HashMap<>();
         
         //findAll() -> select * from board;
-        Page<BoardEntity> pageObj = boardRepository.findAll(pageable);
+        Page<BoardEntity> pageObj = null;
+
+        //seacrh 검색 비교 
+        if(!StringUtils.isBlank(searchDTO.getSchType()) &&
+                !StringUtils.isBlank(searchDTO.getSchText())) {
+    
+         //   if(searchDTO.getSchType().equals("title")) {
+        //        pageObj = boardRepository.findByTitleContaining(searchDTO.getSchText(), pageable);
+            
+        //    }else  if(searchDTO.getSchType().equals("writer")){
+        //        pageObj = boardRepository.findByWriterContaining(searchDTO.getSchText(), pageable); 
+        //    }
+
+            BoardSearchSpecification searchSpecification = new BoardSearchSpecification(searchDTO);
+            pageObj = boardRepository.findAll(searchSpecification, pageable);   
+        
+
+        }else {
+            pageObj = boardRepository.findAll(pageable);   
+        }
 
         // List of Entity ==> List of DTO 
         List<BoardDTO.Response> list  =

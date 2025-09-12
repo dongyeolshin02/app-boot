@@ -80,7 +80,7 @@ public class BoardAPIController {
 
         try{
 
-            resultMap = jpaService.getBoardList(pageable);
+            resultMap = jpaService.getBoardList(searchDTO, pageable);
 
         }catch(Exception e) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -109,6 +109,7 @@ public class BoardAPIController {
         resultMap = jpaService.writeBoard(request);
         return new ResponseEntity<>(resultMap, status);
     }
+    
 
     @GetMapping("/board/file/{bfId}")
      public ResponseEntity<Resource> downFile(@PathVariable("bfId") int bfId) throws Exception {
