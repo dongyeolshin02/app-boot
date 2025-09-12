@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -36,6 +37,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class BoardJPAService {
+
+    @Value("${server.file.upload.path}")
+    private String filePath;
 
     private final BoardRepository boardRepository;
     private final BoardFileRepository fileRepository;
@@ -83,7 +87,7 @@ public class BoardJPAService {
         Map<String, Object> resultMap = new HashMap<>();
 
         //물리적으로 저장
-        Map<String, Object> fileMap = fileUtils.uploadFiles(request.getFile(), "board");
+        Map<String, Object> fileMap = fileUtils.uploadFiles(request.getFile(), filePath);
         BoardEntity entity = new BoardEntity();
         entity.setTitle(request.getTitle());
         entity.setContents(request.getContents());

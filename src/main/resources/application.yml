@@ -3,10 +3,14 @@ server:
   port: 9090
   file:
     upload:
-      path: c:\\files\\upload\\
+      path: C:\\files\\upload\\board\\
+    gallery:
+      path: C:\\files\\upload\\gallery\\
 
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: app-boot
 #Database 설정
