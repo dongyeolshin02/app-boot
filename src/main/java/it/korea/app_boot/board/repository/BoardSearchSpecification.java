@@ -21,7 +21,7 @@ public class BoardSearchSpecification implements Specification<BoardEntity>{
     }
 
     /*
-     * root:  비교대상 > entity
+     * root:  비교대상 > entity >> jpa 가 만들어서 넣어줌 
      * query:  sql 조작 
      * cb  : where 조건 
      */

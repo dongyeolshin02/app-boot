@@ -11,10 +11,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,12 +27,14 @@ import it.korea.app_boot.board.service.BoardJPAService;
 import it.korea.app_boot.board.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 //return 이 view 아닌 data 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Slf4j
 public class BoardAPIController {
 
     private final BoardService service;
@@ -61,6 +65,7 @@ public class BoardAPIController {
 
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = HttpStatus.OK;
+        log.info("============== 게시판 데이터 가져오기 =====================");
 
         List<Sort.Order> sorts = new ArrayList<>();
         String[] sidxs = searchDTO.getSidx().split(",");
@@ -107,6 +112,36 @@ public class BoardAPIController {
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = HttpStatus.OK;
         resultMap = jpaService.writeBoard(request);
+        return new ResponseEntity<>(resultMap, status);
+    }
+
+
+
+    @PutMapping("/board")
+    public ResponseEntity<Map<String, Object>> updateBoard(@Valid @ModelAttribute BoardDTO.Request request) throws Exception {
+        
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = HttpStatus.OK;
+        resultMap = jpaService.updateBoard(request);
+        return new ResponseEntity<>(resultMap, status);
+    }
+
+     @DeleteMapping("/board/{brdId}")
+    public ResponseEntity<Map<String, Object>> deleteBoard(@PathVariable("brdId") int brdId) throws Exception {
+        
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = HttpStatus.OK;
+        resultMap = jpaService.deleteBoard(brdId);
+        return new ResponseEntity<>(resultMap, status);
+    }
+
+
+    @DeleteMapping("/board/file/{bfId}")
+    public ResponseEntity<Map<String, Object>> deleteFile(@PathVariable("bfId") int bfId) throws Exception {
+        
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = HttpStatus.OK;
+        resultMap = jpaService.deleteFile(bfId);
         return new ResponseEntity<>(resultMap, status);
     }
     

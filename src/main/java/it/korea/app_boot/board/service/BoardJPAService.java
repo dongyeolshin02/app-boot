@@ -123,13 +123,112 @@ public class BoardJPAService {
           fileEntity.setFilePath(fileMap.get("filePath").toString());
           fileEntity.setFileSize(request.getFile().getSize());
           entity.addFiles(fileEntity);
-        }
+        
+        }else {
+                throw new RuntimeException("파일 업로드 실패");
+        } 
 
         boardRepository.save(entity);
 
         resultMap.put("resultCode", 200);
         resultMap.put("resultMsg", "OK");   
         
+        return resultMap;
+    }
+
+
+    @Transactional
+    public Map<String, Object> updateBoard(BoardDTO.Request request) throws Exception{
+        
+        BoardEntity entity = 
+            boardRepository.getBoard(request.getBrdId())
+                .orElseThrow(() -> new RuntimeException("게시글 없음"));
+
+        BoardDTO.Detail  detail = BoardDTO.Detail.of(entity);
+
+        entity.setTitle(request.getTitle());
+        entity.setContents(request.getContents());
+        
+        if(!request.getFile().isEmpty()) {
+
+            Map<String, Object> fileMap = fileUtils.uploadFiles(request.getFile(), filePath);
+
+            entity.getFileList().clear(); // 기존 목록 날리기 
+
+            if(fileMap != null) {
+                BoardFileEntity fileEntity = new BoardFileEntity();
+                fileEntity.setFileName(fileMap.get("fileName").toString());
+                fileEntity.setStoredName(fileMap.get("storedFileName").toString());
+                fileEntity.setFilePath(fileMap.get("filePath").toString());
+                fileEntity.setFileSize(request.getFile().getSize());
+                entity.addFiles(fileEntity);
+            
+            }else {
+                throw new RuntimeException("파일 업로드 실패");
+            }   
+        } 
+
+        boardRepository.save(entity);
+        // 데이터베이스 롤백을 대비해서 물리파일은 마지막에 지운다 
+        if(!request.getFile().isEmpty()) {
+
+            if(detail.getFileList() != null && detail.getFileList().size() > 0) {
+                  for(BoardFileDTO fileDTO : detail.getFileList()) {
+                    String oldFilePath = fileDTO.getFilePath() + fileDTO.getStoredName();
+                    //파일 삭제 
+                    fileUtils.deleteFile(oldFilePath);
+                  }
+            }
+        }
+
+        Map<String, Object> resultMap = new HashMap<>();
+
+        resultMap.put("resultCode", 200);
+        resultMap.put("resultMsg", "OK");   
+        return resultMap;
+    }
+
+
+     @Transactional
+     public Map<String, Object> deleteBoard(int brdId) throws Exception {
+
+        BoardEntity entity = 
+            boardRepository.getBoard(brdId)
+                .orElseThrow(() -> new RuntimeException("게시글 없음"));
+
+
+        boardRepository.delete(entity);
+       
+        if( entity.getFileList() != null && entity.getFileList().size() > 0) {
+            for(BoardFileEntity fileDTO : entity.getFileList()) {
+                String oldFilePath = fileDTO.getFilePath() + fileDTO.getStoredName();
+                //파일 삭제 
+                fileUtils.deleteFile(oldFilePath);
+            }
+        }
+       
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("resultCode", 200);
+        resultMap.put("resultMsg", "OK");   
+        return resultMap;
+     }
+
+
+    @Transactional
+    public Map<String, Object> deleteFile(int bfId) throws Exception {
+
+        BoardFileEntity fileEntity=  fileRepository.findById(bfId)
+                                    .orElseThrow(()-> new NotFoundException("파일정보 없음"));
+        
+        fileRepository.delete(fileEntity);
+
+        String oldFilePath = fileEntity.getFilePath() + fileEntity.getStoredName();
+        fileUtils.deleteFile(oldFilePath);
+
+         Map<String, Object> resultMap = new HashMap<>();
+
+        resultMap.put("resultCode", 200);
+        resultMap.put("resultMsg", "OK");   
         return resultMap;
     }
 
