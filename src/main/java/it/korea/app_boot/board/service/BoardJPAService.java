@@ -113,7 +113,7 @@ public class BoardJPAService {
         BoardEntity entity = new BoardEntity();
         entity.setTitle(request.getTitle());
         entity.setContents(request.getContents());
-        entity.setWriter("admin");
+        entity.setWriter(request.getWriter());
         
         if(fileMap != null) {
 
@@ -124,9 +124,7 @@ public class BoardJPAService {
           fileEntity.setFileSize(request.getFile().getSize());
           entity.addFiles(fileEntity);
         
-        }else {
-                throw new RuntimeException("파일 업로드 실패");
-        } 
+        }
 
         boardRepository.save(entity);
 

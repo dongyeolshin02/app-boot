@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 public class GalleryRequest {
 
+    private String nums;
     @NotBlank(message = "타이틀은 존재해야ㅏ 합니다.")
     private String title;
     @NotNull(message = "파일은 필수입니다.")

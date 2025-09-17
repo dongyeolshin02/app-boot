@@ -66,7 +66,7 @@
             <section class="row" style="margin-top: 15px;">
                 <div class="col-12" style="width: 100%;text-align: right;margin-right: 80px;">
 					<button type="button" class="btn btn-primary"  onclick="openModal('add');">글 등록</button>
-					<button type="button" class="btn btn-danger"   onclick="openModal('update');">글 삭제</button>
+					<button type="button" class="btn btn-danger"   onclick="deleteGallery();">글 삭제</button>
 				</div>
             </section>
         </section>
@@ -80,6 +80,7 @@
             </div>
             <div class="modal-body">
                  <form id="gallFrm">
+                    <input type="hidden" id="nums" name="nums">
                     <div class="row mb-3">
                         <div class="col-auto pt-1">
                             <label for="title" class="col-form-label">제목 : </label>
@@ -112,13 +113,13 @@
         let modalType = '';
         const titles =['등록', '수정'];
 
-        const openModal = (type) =>{
+        const openModal = (type, data) =>{
             modalType = type;
 
             if(modalType === 'add') {
                 addModal(titles[0]);
             }else {
-                updateModal(titles[1]);
+                updateModal(titles[1], data);
             }
         }
 
@@ -127,7 +128,7 @@
             addModal.modal('show');
 
             addModal.on('shown.bs.modal', evt =>{
-                $('#gallModalLabel').text(title);            
+                $('#gallModalLabel').text(title);         
             });
 
 
@@ -136,6 +137,24 @@
                 $('#gallFrm')[0].reset();      
             })
         }
+
+        function updateModal(title, data) {
+
+             const updateModal = $('#gallModal');
+            updateModal.modal('show');
+
+            updateModal.on('shown.bs.modal', evt =>{
+                $('#gallModalLabel').text(title);
+                 $('#title').val(data.title);
+                 $('#nums').val(data.nums);  //수정을 위한 기본키 저장         
+            });
+
+            updateModal.on('hidden.bs.modal', evt =>{
+                // 모든  form 입력 취소     
+                $('#gallFrm')[0].reset();      
+            })
+        }
+
         
         //모달창 닫기
         function closeModal() {
@@ -189,7 +208,6 @@
          async function saveGallery(){
 
             if(validated()) {
-                
                 const gallFrm = $('#gallFrm');
                 const formData = new FormData(gallFrm[0]);
 
@@ -197,14 +215,21 @@
                     'Content-type' : 'multipart/form-data'
                 }
 
-                try{          
-                    const  resp = await  axios.post('/api/v1/gal', formData, header); 
+                try{
+                    const methodType = modalType ==='add' ? 'post' : 'put' ;
+                    const keywords =  modalType ==='add' ? '등록' : '수정' ;
+                    const  resp = await  axios({
+                        url : '/api/v1/gal',
+                        method : methodType,
+                        data: formData,
+                        headers : header
+                    }); 
                     
                     if(resp.data.resultCode === 200) {
-                        alert('이미지가 등록되었습니다.');
+                        alert(`이미지가 ${keywords} 되었습니다.`);
                         getData(); //데이터만 새로 그리기 
                     }else {
-                        alert('이미지 등록이 실패했습니다.');
+                        alert(`이미지가 ${keywords}이 실패했습니다.`);
                     }
                
                     closeModal(); //모달창 닫기 
@@ -214,8 +239,6 @@
                 }
             }
         }
-
-
 
 
         function getData() {
@@ -256,6 +279,10 @@
             const dateSpan = $(`<span></span>`);
             const link = $('<a href="javascript:void(0)"></a>');
           
+
+            //이벤트 처리 
+            link.on('click',  ()=> openModal('update', data));
+
             link.text(data.title);
             dateSpan.text(' | ' + data.lastModifiedDate);
             imgBox.append(img); 
@@ -271,6 +298,37 @@
         }
 
 
+        async function  deleteGallery() {
+            const selected = $('input[name="imgChk"]:checked');
+
+            console.log(selected);
+
+            if(selected.length === 0) {
+                alert('삭제할 이미지를 한개이상 체크하십시오.');
+                return false;
+            }
+
+            if( !confirm('정말 삭제하시겠습니까?')) return false;
+
+            const targetIds = [];
+            $.each(selected, (index, obj)=>{
+                 targetIds.push(obj.value);
+            });
+            
+            try{
+                const res = await axios.delete(`/api/v1/gal?targetIds=${targetIds.join(",")}`);
+                if(res.data.resultCode === 200) {
+                    alert('이미지가 삭제되었습니다.');
+                }else {
+                    alert('이미지 삭제가 실패하였습니다.')
+                }
+            }catch(error) {
+                console.log(error);
+            }finally{
+                //삭제 후 화면 다시 그리기 
+                getData();
+            }
+        }
 
         $(document).ready(function(){
             getData();
