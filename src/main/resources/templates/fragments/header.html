@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<html lang="en"  xmlns:th="http://www.thymeleaf.org"
+                 xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
   <div th:fragment="header">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
@@ -17,17 +18,21 @@
                <li class="nav-item">
                 <a class="nav-link " href="/gal">이미지게시판</a>
               </li>
+              <li sec:authorize="hasRole('ROLE_ADMIN')">
+                  <a class="nav-link " href="/admin/list">회원게시판</a>
+              </ㅣ>
             </ul>
-            <ul class="navbar-nav">
+            <span class="navbar-text" sec:authorize="isAnonymous()">
+              <a href="/login">로그인</a>
+            </span>
+            <ul class="navbar-nav" sec:authorize="isAuthenticated()">
                <li class="nav-item dropdown">
                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Dropdown
+                  <span  th:text="${#authentication.name}"></span>님  안녕하세요
                 </a>
-                <ul class="dropdown-menu" style="left: -50px;width: 120px;">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                <ul class="dropdown-menu" style="width: 150px;">
+                  <li><a class="dropdown-item" href="#">사용자정보</a></li>
+                  <li><a class="dropdown-item" href="/logout">로그 아웃</a></li>
                 </ul>
               </li>
             </ul>

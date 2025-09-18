@@ -36,10 +36,11 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 
         //로그인 성공 후 처리 
         setDefaultTargetUrl("/board/list");
+        //이동경로가 있으면 우선사용 
+        setAlwaysUseDefaultTargetUrl(false);
+        
         request.getSession().setMaxInactiveInterval(1800);
-
         SavedRequest savedRequest = requestCache.getRequest(request, response);
-
         //세션  가져오기
         HttpSession session = request.getSession();
         //사용자 정보 저장
@@ -49,7 +50,8 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         if(savedRequest != null) {
             String targetURI = savedRequest.getRedirectUrl();
 
-            if(targetURI.contains("error") || targetURI.contains(".well-known")) {
+            if(targetURI.contains("error") || targetURI.contains(".well-known")
+            || targetURI.contains("login")) {
                 targetURI = getDefaultTargetUrl();
             }
             redirectStrategy.sendRedirect(request, response, targetURI);

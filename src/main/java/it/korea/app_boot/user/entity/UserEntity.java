@@ -24,7 +24,7 @@ public class UserEntity extends BaseEntity {
 
     private String userName;
 
-    private int birth;
+    private String birth;
 
     private String gender;
 
