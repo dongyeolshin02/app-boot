@@ -9,8 +9,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import it.korea.app_boot.admin.dto.AdminUserDTO;
 import it.korea.app_boot.admin.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,4 +42,21 @@ public class AdminUserController {
 
         return view;
     }
+
+     @GetMapping("/info")
+     public ModelAndView  adminUserView(@RequestParam("userId") String userId) {
+        ModelAndView view = new ModelAndView();
+        view.setViewName("views/admin/detail");
+        try{
+
+            AdminUserDTO dto = userService.getUser(userId);
+            view.addObject("vo", dto);
+
+        }catch(Exception e){
+            log.error("사용자 정보 가져오기 오류 ");
+            e.printStackTrace();
+        }
+
+        return view;
+     }
 }

@@ -13,18 +13,11 @@
             </header>
             <section class="sch-box" id="searchType">
               <ul class="sch-list">
-                <li>     
-                  <label class="d-inline-block">검색:</label>
-                  <select class="form-select d-inline-block w-auto">
-                    <option value="userId">아이디</option>
-                    <option value="userName">이름</option>
-                  </select>
-                </li>
                 <li class="mx-2">
-                    <input type="text" class="form-control" id="searchText">
+                    <input type="text" class="form-control" id="searchText" placeholder="아이디 또는 이름">
                 </li>
                 <li>
-                    <button type="button" class="btn btn-warning">검색</button>
+                    <button type="button" class="btn btn-warning" onclick="search();">검색</button>
                 </li>
                 <li class="ms-auto">
                     <button type="button" class="btn btn-primary">등록</button>
@@ -63,7 +56,11 @@
                     </thead>
                     <tbody id="userTbody">
                         <tr th:each="item : ${data.content}">
-                            <td th:text="${item.userId}"></td>
+                            <td >
+                                <a href="javascript:void(0);" 
+                                   th:onclick="goDetail([[ ${item.userId} ]])" 
+                                   th:text="${item.userId}"></a>
+                            </td>
                             <td th:text="${item.userName}"></td>
                             <td th:text="${item.gender}"></td>
                             <td th:text="${item.birth}"></td>
@@ -97,7 +94,6 @@
 
         function makeSearchParam() {
             return {
-                searchType :$('#searchType').val(),
                 searchText : $('#searchText').val(),
                 page : $('#page').val(),
                 size : $('#size').val()
@@ -122,9 +118,24 @@
 
              $.each(data.content, (index, obj)=>{
                 const tr =$('<tr></tr>');
+                let contents = '';
+                
                 for(let key of columns ){
+                    contents = '';
                     const td = $('<td></td>');
-                    td.append(obj[key]);
+                   
+                    if(key === 'userId'){
+                        const aTag = $('<a href="javascript:void(0)"></a>');
+                        aTag.on('click', ()=> goDetail(obj[key]));
+                        aTag.text(obj[key]);
+                        contents = aTag;
+                        console.log(contents)
+                   
+                    }else {
+                        contents = obj[key];
+                    }
+
+                    td.append(contents);
                     tr.append(td);
                 }
 
@@ -132,6 +143,15 @@
              });
 
             pageArea.append(data.pageHTML);
+        }
+
+        const goDetail =(userId) =>{
+            location.href = `/admin/info?userId=${userId}`;
+        }
+
+
+        const search = () =>{
+            getSearchData();
         }
 
     </script>

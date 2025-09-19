@@ -57,3 +57,14 @@
     margin: 0;
     padding: 0;
 }
+
+.admin-table td a{
+    text-decoration: none;
+    color : black; 
+    cursor: pointer;
+}
+
+.admin-table td a:hover{
+    color : #8d3d8d;
+    font-weight: 600;
+}
