@@ -6,4 +6,5 @@ import lombok.Data;
 public class AdminUserSearchDTO {
 
     private String searchText;
+    private String delYn;
 }

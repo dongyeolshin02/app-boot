@@ -38,6 +38,8 @@ function errorHanlder(error) {
     const status = error.response.status;
     const data = error.response.data;
 
+    console.log(data);
+
     switch(status) {
         case 400 :
             alert('잘못된 요청입니다');

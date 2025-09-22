@@ -1,5 +1,7 @@
 package it.korea.app_boot.user.entity;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import it.korea.app_boot.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,6 +41,7 @@ public class UserEntity extends BaseEntity {
     @Column( columnDefinition = "CHAR(1)")
     private String useYn;
     @Column( columnDefinition = "CHAR(1)")
+    @ColumnDefault("N")
     private String delYn;
 
 

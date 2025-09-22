@@ -93,6 +93,8 @@ public class AdminUserDTO {
         entity.setEmail(dto.getEmail());
         entity.setAddr(dto.getAddr());
         entity.setAddrDetail(dto.getAddrDetail());
+        entity.setUseYn(dto.getUseYn());
+        entity.setDelYn(dto.getDelYn() == null ?  "N" : dto.getDelYn());
 
         return entity;
     }
